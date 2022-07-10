@@ -1,5 +1,11 @@
 package golang_united_school_homework
 
+import (
+	"errors"
+	"fmt"
+)
+
+var errorShapeOverflow = errors.New("shapeCapacity is full")
 
 // box contains list of shapes and able to perform operations on them
 type box struct {
@@ -17,7 +23,12 @@ func NewBox(shapesCapacity int) *box {
 // AddShape adds shape to the box
 // returns the error in case it goes out of the shapesCapacity range.
 func (b *box) AddShape(shape Shape) error {
-	panic("implement me")
+	shapesCount := len(b.shapes)
+	if shapesCount >= b.shapesCapacity {
+		return fmt.Errorf("could not add shape: %w", errorShapeOverflow)
+	}
+	b.shapes = append(b.shapes, shape)
+	return nil
 }
 
 // GetByIndex allows getting shape by index
