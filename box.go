@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	errorFullCapacity    = errors.New("shapeCapacity is full")
-	errorIndexOutOfRange = errors.New("index out of range")
+	errorFullCapacity        = errors.New("shapeCapacity is full")
+	errorIndexOutOfRange     = errors.New("index out of range")
+	errorCircleDoesNotExists = errors.New("circle does not exists")
 )
 
 // box contains list of shapes and able to perform operations on them
@@ -49,7 +50,7 @@ func (b *box) GetByIndex(i int) (Shape, error) {
 func (b *box) ExtractByIndex(i int) (Shape, error) {
 	shapesCount := len(b.shapes)
 	if i >= shapesCount {
-		return nil, fmt.Errorf("could not get by index: %w", errorIndexOutOfRange)
+		return nil, fmt.Errorf("could not extract by index: %w", errorIndexOutOfRange)
 	}
 	indexElement := b.shapes[i]
 	b.shapes = removeByIndex(b.shapes, i)
@@ -68,7 +69,7 @@ func removeByIndex(s []Shape, index int) []Shape {
 func (b *box) ReplaceByIndex(i int, shape Shape) (Shape, error) {
 	shapesCount := len(b.shapes)
 	if i >= shapesCount {
-		return nil, fmt.Errorf("could not get by index: %w", errorIndexOutOfRange)
+		return nil, fmt.Errorf("could not replace by index: %w", errorIndexOutOfRange)
 	}
 	replacedShape := b.shapes[i]
 	b.shapes[i] = shape
@@ -96,15 +97,30 @@ func (b *box) SumArea() float64 {
 // RemoveAllCircles removes all circles in the list
 // whether circles are not exist in the list, then returns an error
 func (b *box) RemoveAllCircles() error {
-	for index, shape := range b.shapes {
-		_, isCircle := shape.(Circle)
-		if isCircle {
-			_, err := b.ExtractByIndex(index)
-			if err != nil {
-				return fmt.Errorf("could not remove circle: %w", err)
-			}
+	circlesCount := 0
+	for _, shape := range b.shapes {
+		if isCircle(shape) {
+			circlesCount += 1
+		}
+	}
+	if circlesCount == 0 {
+		return errorCircleDoesNotExists
+	}
+	shapesCount := len(b.shapes)
+	for i := 0; i < shapesCount; i++ {
+		if isCircle(b.shapes[i]) {
+			b.shapes = removeByIndex(b.shapes, i)
+			shapesCount -= 1
+			i -= 1
 		}
 	}
 	return nil
+}
 
+func isCircle(shape Shape) bool {
+	_, ok := shape.(*Circle)
+	if !ok {
+		return false
+	}
+	return true
 }
