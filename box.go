@@ -52,7 +52,7 @@ func (b *box) ExtractByIndex(i int) (Shape, error) {
 		return nil, fmt.Errorf("could not get by index: %w", errorIndexOutOfRange)
 	}
 	indexElement := b.shapes[i]
-	removeByIndex(b.shapes, i)
+	b.shapes = removeByIndex(b.shapes, i)
 	return indexElement, nil
 }
 
@@ -77,19 +77,34 @@ func (b *box) ReplaceByIndex(i int, shape Shape) (Shape, error) {
 
 // SumPerimeter provides sum perimeter of all shapes in the list.
 func (b *box) SumPerimeter() float64 {
-	panic("implement me")
-
+	perimeterSum := .0
+	for _, shape := range b.shapes {
+		perimeterSum += shape.CalcPerimeter()
+	}
+	return perimeterSum
 }
 
 // SumArea provides sum area of all shapes in the list.
 func (b *box) SumArea() float64 {
-	panic("implement me")
-
+	areaSum := .0
+	for _, shape := range b.shapes {
+		areaSum += shape.CalcArea()
+	}
+	return areaSum
 }
 
 // RemoveAllCircles removes all circles in the list
 // whether circles are not exist in the list, then returns an error
 func (b *box) RemoveAllCircles() error {
-	panic("implement me")
+	for index, shape := range b.shapes {
+		_, isCircle := shape.(Circle)
+		if isCircle {
+			_, err := b.ExtractByIndex(index)
+			if err != nil {
+				return fmt.Errorf("could not remove circle: %w", err)
+			}
+		}
+	}
+	return nil
 
 }
